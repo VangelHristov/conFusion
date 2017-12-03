@@ -1,32 +1,42 @@
 'use strict';
 
+require('domain');
+
 const express = require("express"),
 	path = require("path"),
 	logger = require("morgan"),
-	cookieParser = require("cookie-parser"),
 	bodyParser = require("body-parser"),
 	passport = require("passport"),
-	router = require("./routes/index");
+	session = require("express-session"),
+	router = require("./routes/index"),
+	compression = require('compression'),
+	helmet = require('helmet');
 
-// create connection for the database
-require('./models/db');
+const db = require('./models/db');
+const User = db.model('User');
 
-const
-	{Strategy} = require("passport-local"),
-	User = require("./models/db")
-		.model('User');
-
+//initialize passport
+passport.use(User.createStrategy());
 passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
-passport.use(new Strategy({}, User.authenticate()));
 
 const app = express();
 
+app.use(helmet());
+app.use(compression());
 app.use(logger("dev"));
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({extended: false}));
-app.use(cookieParser());
+app.use(bodyParser.json({limit: '1mb'}));
+app.use(bodyParser.urlencoded({limit: '2mb', extended: true}));
+
+//need this according to passport guide
+app.use(session({
+	secret           : process.env.SESSION_SECRET,
+	saveUninitialized: false,
+	resave           : false
+}));
 app.use(passport.initialize());
+app.use(passport.session());
+
 app.use(express.static(path.join(__dirname, "public")));
 
 app.get("/", (req, res) => res.sendFile('public/index.html'));

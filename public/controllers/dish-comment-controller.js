@@ -8,11 +8,13 @@
 			"$window",
 			"menuFactory",
 			"storageFactory",
+			"notification",
 			function dishCommentController(
 				$scope,
 				$window,
 				menuFactory,
-				storageFactory
+				storageFactory,
+				notification
 			) {
 				const initComment = function () {
 					return {
@@ -41,6 +43,7 @@
 							$scope.dish.comments.push($scope.mycomment);
 							$scope.form.comment.$setPristine();
 							$scope.mycomment = initComment();
+							notification.success('Your comment was added');
 						});
 				};
 			}

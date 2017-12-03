@@ -8,6 +8,25 @@ const {Router} = require("express"),
 const userRouter = Router(),
 	User = db.model('User');
 
+const loginUser = function (req, res, user) {
+	req.logIn(user, function loginUser(err) {
+		if (err) {
+			return res.status(400)
+			          .json("Could not log in user");
+		}
+
+		let token = verify.getToken(user);
+		res.status(200)
+		   .json({
+			   message: "Login successful!",
+			   success: true,
+			   userId : user._id,
+			   name   : user.username,
+			   token  : token
+		   });
+	});
+};
+
 userRouter.get(
 	"/",
 	verify.userIsAuthenticated,
@@ -22,39 +41,26 @@ userRouter.get(
 userRouter.post(
 	"/register",
 	function postUser(req, res) {
+		let username = req.body.username;
+		let password = req.body.password;
+
 		User.register(
-			new User({username: req.body.username}),
-			req.body.password,
+			{username: username},
+			password,
 			function registerCallback(err, user) {
 				if (err) {
 					return res
 						.status(400)
-						.json({err: err});
+						.json(err);
 				}
 
-				if (req.body.firstname) {
-					user.firstname = req.body.firstname;
+				if (!user) {
+					return res
+						.status(400)
+						.json('Unable to register');
 				}
 
-				if (req.body.lastname) {
-					user.lastname = req.body.lastname;
-				}
-
-				user.save(function saveCallback(err) {
-					if (err) {
-						return res
-							.status(400)
-							.json(err.message);
-					}
-					passport.authenticate("local")(
-						req,
-						res,
-						function authenticationCallback() {
-							return res
-								.status(201);
-						}
-					);
-				});
+				loginUser(req, res, user);
 			}
 		);
 	}
@@ -72,29 +78,9 @@ userRouter.post(
 				if (!user) {
 					return res
 						.status(401)
-						.json({
-							err: info
-						});
+						.json(info);
 				}
-
-				req.logIn(user, function loginUser(err) {
-					if (err) {
-						return res.status(400)
-						          .json({
-							          err: "Could not log in user"
-						          });
-					}
-
-					let token = verify.getToken(user);
-					res.status(200)
-					   .json({
-						   status : "Login successful!",
-						   success: true,
-						   userId : user._id,
-						   name   : user.username,
-						   token  : token
-					   });
-				});
+				loginUser(req, res, user);
 			}
 		)(req, res, next);
 	}
@@ -104,9 +90,7 @@ userRouter.get(
 	"/logout",
 	function logoutUser(req, res) {
 		req.logout();
-		res.json({
-			status: "Logout successful!"
-		});
+		res.json("Logout successful!");
 	}
 );
 

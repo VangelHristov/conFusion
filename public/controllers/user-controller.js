@@ -8,11 +8,13 @@
 			"userFactory",
 			"$uibModal",
 			"storageFactory",
+			"notification",
 			function userController(
 				$scope,
 				userFactory,
 				$uibModal,
-				storageFactory
+				storageFactory,
+				notification
 			) {
 				const initUser = function () {
 					return {
@@ -25,7 +27,7 @@
 				const modalCtrl = function ($scope) {
 					$scope.dismissModal = () => $scope.cancelModal()
 				};
-
+				$scope.passwordMismatch = () => $scope.user.password !== $scope.user.confirmPassword;
 				$scope.modal = {};
 
 				$scope.showLogInModal = function showLogInModal() {
@@ -59,27 +61,21 @@
 							storageFactory.saveUser(res);
 							$scope.user = initUser();
 							$scope.dismissModal();
+							notification.success(res.message);
 						})
-						.catch(function logInError(err) {
-							console.log(err);//eslint-disable-line no-console
-						});
+						.catch(err => notification.error(err));
 				};
 
 				$scope.register = function register() {
-					if ($scope.user.password !== $scope.user.confirmPassword) {
-						//eslint-disable-next-line no-console
-						console.log('passwords don\'t match');
-					}
-
 					userFactory
 						.register($scope.user)
-						.then(function registerSuccess() {
+						.then(function registerSuccess(res) {
+							storageFactory.saveUser(res);
 							$scope.user = initUser();
 							$scope.dismissModal();
+							notification.success(res.message);
 						})
-						.catch(function registerError(err) {
-							console.log(err);//eslint-disable-line no-console
-						});
+						.catch(err => notification.error(err));
 				};
 
 				$scope.logOut = function logOut() {
@@ -88,10 +84,9 @@
 						.then(function logoutSuccess() {
 							$scope.user = initUser();
 							storageFactory.removeUser();
+							notification.success('You have logged out');
 						})
-						.catch(function logoutError(err) {
-							console.log(err);//eslint-disable-line no-console
-						});
+						.catch(err => notification.error(err));
 				};
 			}
 		]);
