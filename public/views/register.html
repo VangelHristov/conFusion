@@ -1,0 +1,51 @@
+<div id = "register-modal" ng-controller = "UserController">
+	<div class = "modal-content">
+		<div class = "modal-header" align = "center">
+			<img class = "img-circle"
+			     id = "img_logo"
+			     src = "images/logo.png">
+			<button type = "button"
+			        class = "close"
+			        ng-click = "dismissModal()"
+			        aria-label = "Close">
+					<span class = "glyphicon glyphicon-remove"
+					      aria-hidden = "true"></span>
+			</button>
+		</div>
+		<div id = "div-forms">
+			<form id = "register-form">
+				<div class = "modal-body">
+					<input id = "register_username"
+					       class = "form-control"
+					       type = "text"
+					       placeholder = "Username"
+					       ng-required
+					       ng-model = "user.username"
+					       autofocus>
+					<input id = "register_password"
+					       class = "form-control"
+					       type = "password"
+					       placeholder = "Password"
+					       ng-required
+					       ng-model = "user.password">
+					<input id = "confirm_password"
+					       class = "form-control"
+					       type = "password"
+					       placeholder = "Confirm Password"
+					       ng-required
+					       ng-model = "user.confirmPassword">
+				
+				</div>
+				<div class = "modal-footer">
+					<div>
+						<button type = "submit"
+						        class = "btn btn-success btn-lg btn-block"
+						        ng-click = "register()">
+							Register
+						</button>
+					</div>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
