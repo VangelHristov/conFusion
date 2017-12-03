@@ -28,9 +28,9 @@ app.use(bodyParser.urlencoded({extended: false}));
 app.use(cookieParser());
 app.use(passport.initialize());
 app.use(express.static(path.join(__dirname, "public")));
+app.use('/bower_components',  express.static(__dirname + '/public/bower_components'));
 
 app.get("/", (req, res) => res.sendFile('public/index.html'));
-
 app.use("/api/users", router.users);
 app.use("/api/dishes", router.dishes);
 app.use("/api/promotions", router.promotions);
