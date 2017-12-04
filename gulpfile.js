@@ -20,10 +20,10 @@ gulp.task('default', ['browser-sync'], function defaultTask() {
 
 gulp.task('browser-sync', ['nodemon'], function browserSyncTask() {
 	browserSync.init(null, {
-		proxy  : "http://localhost:3000",
-		files  : ["./**/*.*"],
+		proxy: "http://localhost:3000",
+		files: ["./**/*.*"],
 		browser: "firefox",
-		port   : 3001
+		port: 3001
 	});
 });
 gulp.task('nodemon', function nodemonTask(cb) {
@@ -46,11 +46,17 @@ gulp.task('clean', function cleanDist() {
 });
 
 gulp.task('build', ['clean'], function build() {
-	gulp.start('useMin', 'copyfonts', 'copyviews', 'imageMin');
+	return gulp.start(
+		'useMin',
+		'copyfonts',
+		'copyviews',
+		'imageMin',
+		'favicon'
+	);
 });
 
 gulp.task('useMin', function minifyIt() {
-	pump([
+	return pump([
 			gulp.src('./public/index.html'),
 			useMin({
 				html: [htmlMin({collapseWhitespace: true})],
@@ -78,12 +84,12 @@ gulp.task('useMin', function minifyIt() {
 });
 
 gulp.task('copyfonts', function copyfonts() {
-	gulp.src(
+	return gulp.src(
 		[
 			'./public/bower_components/bootstrap/dist/fonts/*.{ttf,woff,eof,svg}*',
 			'./public/bower_components/font-awesome/fonts/*.{ttf,woff,eof,svg}*'
 		])
-	    .pipe(gulp.dest('./dist/fonts'));
+	           .pipe(gulp.dest('./dist/fonts'));
 });
 
 gulp.task('copyviews', function copyViews() {
@@ -93,7 +99,12 @@ gulp.task('copyviews', function copyViews() {
 });
 
 gulp.task('imageMin', function imagemin() {
-	gulp.src('./public/images/*')
-	    .pipe(imageMin())
-	    .pipe(gulp.dest('./dist/images'))
+	return gulp.src('./public/images/*')
+	           .pipe(imageMin())
+	           .pipe(gulp.dest('./dist/images'))
 });
+
+gulp.task('favicon', function moveFavicon() {
+	return gulp.src('./public/favicon.ico')
+	           .pipe(gulp.dest('./dist'));
+})

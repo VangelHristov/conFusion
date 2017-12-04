@@ -15,6 +15,7 @@
     "debug": "*",
     "dotenv": "*",
     "express": "*",
+    "express-favicon": "^2.0.0",
     "express-session": "*",
     "helmet": "*",
     "jsonwebtoken": "*",

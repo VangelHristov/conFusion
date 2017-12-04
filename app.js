@@ -10,7 +10,8 @@ const express = require("express"),
 	session = require("express-session"),
 	router = require("./routes/index"),
 	compression = require('compression'),
-	helmet = require('helmet');
+	helmet = require('helmet'),
+	favicon = require('express-favicon');
 
 const db = require('./models/db');
 const User = db.model('User');
@@ -40,6 +41,7 @@ if (process.env.NODE_ENV.toString() === 'production') {
 	);
 }
 
+app.use(favicon(__dirname + 'favicon.ico'));
 app.use(compression());
 app.use(logger("dev"));
 app.use(bodyParser.json());
