@@ -23,14 +23,16 @@
 
 			return {
 				success: function (text) {
-					toastr.success(text, 'Success:');
+					toastr.success(text.message || text, 'Success:');
 				},
 				error  : function (text) {
 					let msg;
 					if (text.data) {
 						if (text.data.result) {
 							msg = text.data.result;
-						}else{
+						} else if (text.data.message) {
+							msg = text.data.message;
+						} else {
 							msg = text.data;
 						}
 

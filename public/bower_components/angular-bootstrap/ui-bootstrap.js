@@ -4419,7 +4419,7 @@ angular.module('ui.bootstrap.modal', ['ui.bootstrap.multiMap', 'ui.bootstrap.sta
       return $modalStack;
     }])
 
-  .provider('$dialog', function() {
+  .provider('$uibModal', function() {
     var $modalProvider = {
       options: {
         animation: true,

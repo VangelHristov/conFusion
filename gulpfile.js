@@ -3,26 +3,27 @@
 let gulp = require('gulp'),
 	browserSync = require('browser-sync'),
 	nodemon = require('gulp-nodemon'),
-	minifycss = require('gulp-minify-css'),
-	uglify = require('gulp-uglify'),
-	usemin = require('gulp-usemin'),
+	cleanCss = require('gulp-clean-css'),
+	uglifyES = require('gulp-uglify-es'),
+	useMin = require('gulp-usemin'),
 	rev = require('gulp-rev'),
 	del = require('del'),
-	ngannotate = require('gulp-ng-annotate'),
+	ngAnnotate = require('gulp-ng-annotate'),
 	pump = require('pump'),
 	notify = require('node-notifier'),
-	imagemin = require('gulp-imagemin'),
-	minify = require('gulp-minify');
+	imageMin = require('gulp-imagemin'),
+	sourceMaps = require('gulp-sourcemaps'),
+	htmlMin = require('gulp-htmlmin');
 
 gulp.task('default', ['browser-sync'], function defaultTask() {
 });
 
 gulp.task('browser-sync', ['nodemon'], function browserSyncTask() {
 	browserSync.init(null, {
-		proxy  : "http://localhost:3333",
-		files  : ["public/**/*.*"],
+		proxy  : "http://localhost:3000",
+		files  : ["./**/*.*"],
 		browser: "firefox",
-		port   : 3001,
+		port   : 3001
 	});
 });
 gulp.task('nodemon', function nodemonTask(cb) {
@@ -45,24 +46,36 @@ gulp.task('clean', function cleanDist() {
 });
 
 gulp.task('build', ['clean'], function build() {
-	gulp.start(/*'usemin',*/ 'copyfonts', 'copyviews', 'imagemin');
+	gulp.start('useMin', 'copyfonts', 'copyviews', 'imageMin');
 });
-//
-//gulp.task('usemin', function minifyIt() {
-//	pump([
-//			gulp.src('./public/index.html'),
-//			usemin({
-//				css: [minifycss(), rev()],
-//				js : [ngannotate(), minify(), rev()]
-//			}),
-//			gulp.dest('./dist/')
-//		], (err) => {
-//			if (err) {
-//				notify.notify(err);
-//			}
-//		}
-//	);
-//});
+
+gulp.task('useMin', function minifyIt() {
+	pump([
+			gulp.src('./public/index.html'),
+			useMin({
+				html: [htmlMin({collapseWhitespace: true})],
+				css : [
+					sourceMaps.init(),
+					cleanCss(),
+					rev(),
+					sourceMaps.write()
+				],
+				js  : [
+					sourceMaps.init(),
+					ngAnnotate(),
+					uglifyES.default(),
+					rev(),
+					sourceMaps.write()
+				]
+			}),
+			gulp.dest('./dist/')
+		], (err) => {
+			if (err) {
+				notify.notify(err);
+			}
+		}
+	);
+});
 
 gulp.task('copyfonts', function copyfonts() {
 	gulp.src(
@@ -75,11 +88,12 @@ gulp.task('copyfonts', function copyfonts() {
 
 gulp.task('copyviews', function copyViews() {
 	return gulp.src('./public/views/*.html')
+	           .pipe(htmlMin({collapseWhitespace: true}))
 	           .pipe(gulp.dest('./dist/views'));
 });
 
-gulp.task('imagemin', function imageMin() {
+gulp.task('imageMin', function imagemin() {
 	gulp.src('./public/images/*')
-	    .pipe(imagemin())
+	    .pipe(imageMin())
 	    .pipe(gulp.dest('./dist/images'))
 });

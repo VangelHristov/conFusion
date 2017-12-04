@@ -73,7 +73,7 @@
 							storageFactory.saveUser(res);
 							$scope.user = initUser();
 							$scope.dismissModal();
-							notification.success(res.message);
+							notification.success(res);
 						})
 						.catch(err => notification.error(err));
 				};

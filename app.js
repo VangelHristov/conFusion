@@ -22,11 +22,28 @@ passport.deserializeUser(User.deserializeUser());
 
 const app = express();
 
-app.use(helmet());
+app.set('etag', 'weak');
+
+// helmet contentSecurityPolicy prevents browserSync from syncing browser
+if (process.env.NODE_ENV.toString() === 'production') {
+	app.use(
+		helmet({
+			contentSecurityPolicy: {
+				directives: {
+					defaultSrc: ["'self'"]
+				}
+			},
+			hidePoweredBy        : {
+				setTo: 'PHP 4.2.0'
+			}
+		})
+	);
+}
+
 app.use(compression());
 app.use(logger("dev"));
-app.use(bodyParser.json({limit: '1mb'}));
-app.use(bodyParser.urlencoded({limit: '2mb', extended: true}));
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({extended: true}));
 
 //need this according to passport guide
 app.use(session({
@@ -37,9 +54,14 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
-app.use(express.static(path.join(__dirname, "public")));
+app.use(express.static(path.join(__dirname, process.env.STATIC_FILES)));
 
-app.get("/", (req, res) => res.sendFile('public/index.html'));
+app.get(
+	"/",
+	(req, res) => {
+		res.sendFile(`./${process.env.STATIC_FILES}/index.html`);
+	}
+);
 app.use("/api/users", router.users);
 app.use("/api/dishes", router.dishes);
 app.use("/api/promotions", router.promotions);

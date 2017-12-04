@@ -127,3 +127,20 @@ body {
 #register-modal input[type=text], input[type=password] {
     margin-top: 10px;
 }
+
+.padding {
+    padding: 20px;
+}
+
+.text-large {
+    font-size: 100%;
+}
+
+.app-logo {
+    height: 30px;
+    width: 41px;
+}
+
+.social-buttons {
+    padding: 40px 10px;
+}
