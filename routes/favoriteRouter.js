@@ -13,8 +13,10 @@ favoriteRouter.use(bodyParser.json());
 
 favoriteRouter
 	.route("/")
-	.get((req, res, next) => {
-		Favorites.findOne({postedBy: req.decoded._doc._id})
+	.get(
+        verify.userIsAuthenticated,
+        (req, res, next) => {
+	    	Favorites.findOne({postedBy: req.decoded._doc._id})
 		         .populate("postedBy dishes")
 		         .then(favorites => res.json(favorites))
 		         .catch(err => next(err));
@@ -23,7 +25,7 @@ favoriteRouter
 		verify.userIsAuthenticated,
 		function postFavorite(req, res, next) {
 			let query = {postedBy: req.decoded._doc._id},
-				update = {$addToSet: {dishes: req.body._id}},
+				update = {$addToSet: {dishes: req.body.id}},
 				options = {upsert: true, new: true};
 
 			Favorites.findOneAndUpdate(query, update, options)
